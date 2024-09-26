@@ -1,0 +1,59 @@
+﻿@page "/leitura"
+@rendermode InteractiveServer
+@using Banana.UI.Models
+@using Banana.UI.Mqtt.Message
+@using QuickKit.Blazor.Common.Interfaces.Components.Base
+@using QuickKit.Blazor.Components.Grid;
+@using QuickKit.Blazor.Components.Input
+@inject IMessageService MessageService
+@inject NavigationManager NavigationManager
+
+<Grid AllowManipulation="false"
+      AllowRowSelectOnRowClick="false"
+      Columns=@Columns
+      Data=@Data
+      TDataType="LeituraModel" />
+
+<PageTitle>Leitura</PageTitle>
+
+
+@code {
+    List<GridColumn> Columns = [];
+    public static List<LeituraModel> Data { get; set; } = [];
+
+    private void teste()
+    {
+        Columns =
+        [
+            new GridColumn("ID", nameof(LeituraModel.ID), new GridColumnOptions<IRadzenComponent>()
+            {
+            Model = new TextBoxComponent(),
+            Type = RadzenFormInputType.TextBox,
+        }),
+    new GridColumn("Temperatura", nameof(LeituraModel.temperature), new GridColumnOptions<IRadzenComponent>()
+            {
+            Model = new TextBoxComponent(),
+            Type = RadzenFormInputType.TextBox,
+        }),
+    new GridColumn("Umidade", nameof(LeituraModel.humidity), new GridColumnOptions<IRadzenComponent>()
+            {
+            Model = new TextBoxComponent(),
+            Type = RadzenFormInputType.TextBox,
+        })
+        ];
+    }
+
+    private void AtualizaTela(LeituraModel leitura)
+    {
+        Data.Add(leitura);
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Data.Clear();
+        Data.AddRange(await Database.GetAll());
+        teste();
+        MessageService.OnMessage += AtualizaTela;
+        await base.OnInitializedAsync();
+    }
+}
